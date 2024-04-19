@@ -25,8 +25,5 @@ WORKDIR /orbit
 RUN git apply --reject --whitespace=fix docker_patch.diff
 RUN git add .
 
-# Delete stale lists
-CMD rm -rf /var/lib/apt/lists/*
-
 # Delete stale lists and exec bash shell
 CMD rm -rf /var/lib/apt/lists/*; /bin/bash
