@@ -1,0 +1,52 @@
+diff --git a/bootstrap-orbit.sh b/bootstrap-orbit.sh
+index 1696911bf..3d5bb5751 100755
+--- a/bootstrap-orbit.sh
++++ b/bootstrap-orbit.sh
+@@ -30,16 +30,16 @@ readonly REQUIRED_PACKAGES=( build-essential libglu1-mesa-dev mesa-common-dev \
+                              libxxf86vm-dev python3-pip libboost-dev )
+ 
+ function add_ubuntu_universe_repo {
+-  sudo add-apt-repository universe
++  add-apt-repository universe
+   if [ $? -ne 0 ]; then
+-    sudo apt-get install -y software-properties-common
+-    sudo add-apt-repository universe
++    apt-get install -y software-properties-common
++    add-apt-repository universe
+   fi
+ }
+ 
+ function install_required_packages {
+-  sudo apt-get update || exit $?
+-  sudo apt-get install -y ${REQUIRED_PACKAGES[@]} || exit $?
++  apt-get update || exit $?
++  apt-get install -y ${REQUIRED_PACKAGES[@]} || exit $?
+ }
+ 
+ 
+@@ -58,9 +58,9 @@ if [[ $IGNORE_SYS_REQUIREMENTS != "yes" ]]; then
+       echo "Installing required system dependencies..."
+ 
+       # That only works on Ubuntu!
+-      if [[ "$(lsb_release -si)" == "Ubuntu" ]]; then
+-        add_ubuntu_universe_repo
+-      fi
++      #if [[ "$(lsb_release -si)" == "Ubuntu" ]]; then
++      add_ubuntu_universe_repo
++      #fi
+ 
+       install_required_packages
+     fi
+diff --git a/conanfile.py b/conanfile.py
+index 8535b815f..0f0e28ced 100644
+--- a/conanfile.py
++++ b/conanfile.py
+@@ -65,7 +65,7 @@ class OrbitConan(ConanFile):
+             self.requires("volk/1.3.224.1")
+             self.requires("vulkan-headers/1.3.224.1")
+             self.requires("vulkan-validationlayers/1.3.224.1")
+-        self.requires("zlib/1.2.12", override=True)
++        self.requires("zlib/1.2.13", override=True)
+         self.requires("openssl/1.1.1s", override=True)
+ 
+         if self.options.with_gui:
