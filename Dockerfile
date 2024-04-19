@@ -28,5 +28,5 @@ RUN git add .
 # Delete stale lists
 CMD rm -rf /var/lib/apt/lists/*
 
-# Specify the default command to run when the container starts
-CMD ["/bin/bash"]
+# Delete stale lists and exec bash shell
+CMD rm -rf /var/lib/apt/lists/*; /bin/bash
