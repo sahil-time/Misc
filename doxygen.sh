@@ -6,6 +6,9 @@ PROJECT_NAME="DOXYGEN-POC"
 FILE_DIRECTORY="random_files_folder"
 REGEX="*aa*"
 
+# START A WEBSERVER FROM THE 'DOXYGEN_HTML_FOLDER_PATH' - python3 -m http.server -b <ip-addr> 8080 &
+# ps -aux => [ python3 -m http.server -b <ip-addr> 8080 ]
+
 #FILES_TO_COPY=(
 #  "abc/xyz/aaa.cpp"
 #  "abc/xyz/aab.cpp"
@@ -15,10 +18,17 @@ REGEX="*aa*"
 # DO NOT CHANGE ANYTHING BELOW
 ################################
 
+WEBSERVER="$1"
+WEBSERVER_FOLDER_PATH="/Users/sahisha2/Downloads/doxygen_web_server/"
+
 ARCHIVE="${WS_DIRECTORY}/doxygen.tar.gz"
 DOXYFILE="${WS_DIRECTORY}/Doxyfile"
 TMP_INPUT_FOLDER_PATH="${WS_DIRECTORY}/tmp_doxygen_folder"
-DOXYGEN_HTML_FOLDER_PATH="${WS_DIRECTORY}"
+if [ "$WEBSERVER" == "webserver" ]; then
+    DOXYGEN_HTML_FOLDER_PATH=$WEBSERVER_FOLDER_PATH
+else
+    DOXYGEN_HTML_FOLDER_PATH="${WS_DIRECTORY}"
+fi
 
 # Function to check the success of the previous command
 check_command_success() {
@@ -80,18 +90,20 @@ doxygen "$DOXYFILE" >/dev/null 2>&1
 check_command_success "Failed to run Doxygen"
 
 # Create a tarball of the HTML directory
-tar -czvf "$ARCHIVE" "${DOXYGEN_HTML_FOLDER_PATH}/html" >/dev/null 2>&1
-check_command_success "Failed to create tarball from: ${DOXYGEN_HTML_FOLDER_PATH}/html"
+if [ "$WEBSERVER" != "webserver" ]; then
+    tar -czvf "$ARCHIVE" "${DOXYGEN_HTML_FOLDER_PATH}/html" >/dev/null 2>&1
+    check_command_success "Failed to create tarball from: ${DOXYGEN_HTML_FOLDER_PATH}/html"
+    echo "*************************************************************************"
+    echo "DOXYGEN OUTPUT = $ARCHIVE"
+    echo "*************************************************************************"
+fi
 
 # Cleanup directory
 rm -rf "$TMP_INPUT_FOLDER_PATH"
 check_command_success "Failed to remove existing tmp-directory: $TMP_INPUT_FOLDER_PATH"
 rm -f "$DOXYFILE"
 check_command_success "Failed to remove existing Doxyfile: $DOXYFILE"
-rm -rf "$DOXYGEN_HTML_FOLDER_PATH/html"
-check_command_success "Failed to remove existing doxygen output html directory: $DOXYGEN_HTML_FOLDER_PATH/html"
-
-# Echo
-echo "*************************************************************************"
-echo "DOXYGEN OUTPUT = $ARCHIVE"
-echo "*************************************************************************"
+if [ "$WEBSERVER" != "webserver" ]; then
+    rm -rf "$DOXYGEN_HTML_FOLDER_PATH/html"
+    check_command_success "Failed to remove existing doxygen output html directory: $DOXYGEN_HTML_FOLDER_PATH/html"
+fi
