@@ -1,10 +1,10 @@
 #!/bin/bash
 
 ### MODIFY THIS
-WS_DIRECTORY="/Users/sahisha2/Downloads"
-PROJECT_NAME="DOXYGEN-POC"
+ROOT_DIRECTORY="/Users/sahisha2/Downloads"
 FILE_DIRECTORY="random_files_folder"
 REGEX="*aa*"
+PROJECT_NAME="DOXYGEN-POC"
 
 # START A WEBSERVER FROM THE 'DOXYGEN_HTML_FOLDER_PATH' - python3 -m http.server -b <ip-addr> 8080 &
 # ps -aux => [ python3 -m http.server -b <ip-addr> 8080 ]
@@ -19,16 +19,11 @@ REGEX="*aa*"
 ################################
 
 WEBSERVER="$1"
-WEBSERVER_FOLDER_PATH="/Users/sahisha2/Downloads/doxygen_web_server/"
 
-ARCHIVE="${WS_DIRECTORY}/doxygen.tar.gz"
-DOXYFILE="${WS_DIRECTORY}/Doxyfile"
-TMP_INPUT_FOLDER_PATH="${WS_DIRECTORY}/tmp_doxygen_folder"
-if [ "$WEBSERVER" == "webserver" ]; then
-    DOXYGEN_HTML_FOLDER_PATH=$WEBSERVER_FOLDER_PATH
-else
-    DOXYGEN_HTML_FOLDER_PATH="${WS_DIRECTORY}"
-fi
+ARCHIVE="${ROOT_DIRECTORY}/doxygen.tar.gz"
+DOXYFILE="${ROOT_DIRECTORY}/Doxyfile"
+TMP_INPUT_FOLDER_PATH="${ROOT_DIRECTORY}/tmp_doxygen_folder"
+DOXYGEN_HTML_FOLDER_PATH="${ROOT_DIRECTORY}"
 
 # Function to check the success of the previous command
 check_command_success() {
@@ -38,7 +33,7 @@ check_command_success() {
     fi
 }
 
-# Cleanup
+# Cleanup Directories
 rm -f "$ARCHIVE"
 check_command_success "Failed to remove existing archive: $ARCHIVE"
 rm -f "$DOXYFILE"
@@ -47,6 +42,13 @@ rm -rf "$TMP_INPUT_FOLDER_PATH"
 check_command_success "Failed to remove existing tmp-directory: $TMP_INPUT_FOLDER_PATH"
 rm -rf "$DOXYGEN_HTML_FOLDER_PATH/html"
 check_command_success "Failed to remove existing doxygen output html directory: $DOXYGEN_HTML_FOLDER_PATH/html"
+
+# Kill existing webserver
+pidof_server=$(pgrep -f 'python3 -m http.server')
+if [ -n "$pidof_server" ]; then
+    kill -9 $pidof_server
+    check_command_success "Failed to kill existing webserver"
+fi
 
 # Generate Doxfile and modify attributes using 'sed'
 doxygen -g $DOXYFILE
@@ -63,6 +65,8 @@ declare -A PARAMETERS=(
     [HAVE_DOT]="YES" # Below all for Call-Graph generation
     [CALL_GRAPH]="YES"
     [CALLER_GRAPH]="YES"
+    [UML_LOOK]="YES"
+    [INTERACTIVE_SVG]="YES"
     [EXTRACT_STATIC]="YES" # Extracts all Static functions
     [RECURSIVE]="YES" # Recurses into subdirectories for files
 )
@@ -77,24 +81,31 @@ mkdir -p "$TMP_INPUT_FOLDER_PATH"
 check_command_success "Failed to create tmp-directory: $TMP_INPUT_FOLDER_PATH"
 
 # Copy files
-find $FILE_DIRECTORY -type f -path "$REGEX" ! -path '*/test/*' -exec rsync -R {} $TMP_INPUT_FOLDER_PATH \;
+find $ROOT_DIRECTORY'/'$FILE_DIRECTORY -type f -path "$REGEX" ! -path '*/test/*' -exec rsync -R {} $TMP_INPUT_FOLDER_PATH \;
 check_command_success "Failed to copy file: $TMP_INPUT_FOLDER_PATH"
 
 #for file in "${FILES_TO_COPY[@]}"; do
-#  cp "$WS_DIRECTORY/$file" "$TMP_INPUT_FOLDER_PATH"
-#  check_command_success "Failed to copy file: $WS_DIRECTORY/$file"
+#  cp "$ROOT_DIRECTORY/$file" "$TMP_INPUT_FOLDER_PATH"
+#  check_command_success "Failed to copy file: $ROOT_DIRECTORY/$file"
 #done
 
 # Run Doxygen to generate documentation
 doxygen "$DOXYFILE" >/dev/null 2>&1
 check_command_success "Failed to run Doxygen"
 
-# Create a tarball of the HTML directory
+# Create a tarball of the HTML directory OR start the webserver
 if [ "$WEBSERVER" != "webserver" ]; then
     tar -czvf "$ARCHIVE" "${DOXYGEN_HTML_FOLDER_PATH}/html" >/dev/null 2>&1
     check_command_success "Failed to create tarball from: ${DOXYGEN_HTML_FOLDER_PATH}/html"
     echo "*************************************************************************"
     echo "DOXYGEN OUTPUT = $ARCHIVE"
+    echo "*************************************************************************"
+else
+    cd ${DOXYGEN_HTML_FOLDER_PATH}/html
+    python3 -m http.server -b $HOSTNAME 8080 &
+    cd ..
+    echo "*************************************************************************"
+    echo "STARTED WEB SERVER - '$HOSTNAME:8080'"
     echo "*************************************************************************"
 fi
 
