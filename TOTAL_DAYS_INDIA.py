@@ -21,7 +21,6 @@ FIRST_DATETIME = datetime(2015, 8, 6) # 6th Aug 2015 [ Left for USA ]
 ############## DO NOT CHANGE BELOW ##############
 
 init()
-TOTAL_DAYS_INDIA = 0
 date_format = "%Y-%m-%d" # Define the date format 
 
 # Function to calculate days between two dates
@@ -35,13 +34,14 @@ def calculate_days(date1_str, date2_str):
 print("")
 print("-------------- INDIA TRIPS --------------")
 print("")
+TOTAL_DAYS_INDIA = 0
 # Iterate through the date pairs and calculate the days between each pair
 for i in range(0, len(dates), 2):  # Step by 2 to get pairs
     date2 = dates[i]
     date1 = dates[i + 1]
-    total_days = calculate_days(date1, date2) - 3 # Since we lose 3 days traveling
+    total_days = calculate_days(date1, date2) - 3 # Remove 3 days PER trip coz travel
     TOTAL_DAYS_INDIA += total_days
-    print(f"Total days between {date1} and {date2}: {total_days}")
+    print(f"Total days in INDIA between {date1} & {date2}: {total_days} days")
 
 print("")
 print("-------------- OVERALL STATS --------------")
