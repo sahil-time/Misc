@@ -41,7 +41,7 @@ for i in range(0, len(dates), 2):  # Step by 2 to get pairs
     date1 = dates[i + 1]
     total_days = calculate_days(date1, date2) - 3 # Remove 3 days PER trip coz travel
     TOTAL_DAYS_INDIA += total_days
-    print(f"Total days in INDIA between {date1} & {date2}: {total_days} days")
+    print(f"Total days in INDIA between {Fore.RED}{date1}{Fore.RESET} & {Fore.RED}{date2}{Fore.RESET}: {Style.BRIGHT}{total_days}{Style.RESET_ALL} days")
 
 print("")
 print("-------------- OVERALL STATS --------------")
