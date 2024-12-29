@@ -32,9 +32,10 @@ def calculate_days(date1_str, date2_str):
     return (date2 - date1).days
 
 print("")
-print("-------------- INDIA TRIPS --------------")
+print("------------------- INDIA TRIPS -------------------")
 print("")
 TOTAL_DAYS_INDIA = 0
+total_trips = 1
 # Iterate through the date pairs and calculate the days between each pair
 for i in range(0, len(dates), 2):  # Step by 2 to get pairs
     date2 = dates[i]
@@ -43,11 +44,11 @@ for i in range(0, len(dates), 2):  # Step by 2 to get pairs
     TOTAL_DAYS_INDIA += total_days
     tmp1 = datetime.strptime(date1, "%Y-%m-%d").strftime("%d-%b-%Y")
     tmp2 = datetime.strptime(date2, "%Y-%m-%d").strftime("%d-%b-%Y")
-
-    print(f"Total days in INDIA between {Fore.RED}{tmp1}{Fore.RESET} & {Fore.RED}{tmp2}{Fore.RESET}: {Style.BRIGHT}{total_days}{Style.RESET_ALL} days")
+    print(f"{total_trips}. Total days in INDIA between {Fore.RED}{tmp1}{Fore.RESET} & {Fore.RED}{tmp2}{Fore.RESET}: {Style.BRIGHT}{total_days}{Style.RESET_ALL} days")
+    total_trips += 1
 
 print("")
-print("-------------- OVERALL STATS --------------")
+print("------------------- OVERALL STATS -------------------")
 print("")
 TOTAL_DAYS_ELAPSED = datetime.today() - FIRST_DATETIME
 TOTAL_DAYS_USA = TOTAL_DAYS_ELAPSED.days - TOTAL_DAYS_INDIA
